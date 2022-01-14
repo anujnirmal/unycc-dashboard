@@ -1,0 +1,25 @@
+.login-screen{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100vh;
+    background-color: #EEEEEE;
+}
+
+.input-container{
+    width: 80%;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.input-control{
+    margin: 20px 0 !important;
+}
+
+
+.login-button:hover{
+    background-color: #731c83 !important;
+}
