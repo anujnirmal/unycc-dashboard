@@ -1,10 +1,13 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import TotalApplicant from "../total-applicant/TotalApplicant";
 import TableComp from "../table/TableComp";
+import serverLink from '../../serverLink';
+import axios from 'axios';
+import { SettingsBackupRestoreSharp } from '@mui/icons-material';
 
 const Item = styled(Paper)(({ theme }) => ({
   ...theme.typography.body2,
@@ -13,13 +16,53 @@ const Item = styled(Paper)(({ theme }) => ({
   color: theme.palette.text.secondary,
 }));
 
+
+
 const DashboardMain = () => {
+
+    const [dashboardCount, setDashboardCount] = useState({
+        "applicationCount": "0",
+        "totalEmails": "0",
+        "totalAccepted": "0"
+    });
+
+    
+    useEffect(() => {
+        const token = window.localStorage.getItem("token").toString(); 
+        getDashboardData(token);
+    }, [])
+
+
+    const getDashboardData = async (token) => {
+        
+        const authAxios = axios.create({
+            baseURL: 'http://localhost:4000',
+            headers: {
+                'x-access-token': token
+            }
+        })   
+        try{
+            const result = await authAxios.post(`/api/admin/dashboard`);
+            
+            const {acceptedCount, appCount, contactCount} = result.data;
+
+            setDashboardCount({
+                "applicationCount": appCount,
+                "totalEmails": contactCount,
+                "totalAccepted": acceptedCount
+            })
+        }
+        catch (err) {
+            console.log(err);
+        }     
+    }
+
     return (
         <div>
             <Box sx={{ flexGrow: 1 }}>
                 <Grid container spacing={2}>
                     <Grid item xs={12}>
-                        <TotalApplicant />
+                        <TotalApplicant totalStats={dashboardCount} />
                     </Grid>
                     <Grid item xs={12}>
                         <TableComp />

@@ -17,6 +17,7 @@ import axios from 'axios';
 import cors from 'cors';
 import './login.css';
 import { fabClasses } from '@mui/material';
+import serverLink from "../../serverLink";
 
 
 
@@ -72,7 +73,7 @@ const Login = () => {
         e.preventDefault();
         await axios({
             method: 'post',
-            url: 'http://localhost:4000/auth/login',
+            url: `${serverLink}/api/auth/login`,
             data: {
               userName: userName, // This is the body part
               password: pass

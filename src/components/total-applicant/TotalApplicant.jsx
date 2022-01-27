@@ -20,7 +20,12 @@ const Item = styled(Paper)(({ theme }) => ({
 
 
 
-const TotalApplicant = () => {
+const TotalApplicant = (props) => {
+
+  const totalApplication = props.totalStats.applicationCount;
+  const totalEmails = props.totalStats.totalEmails;
+  const totalAccepted = props.totalStats.totalAccepted;
+
   return (
     <div>
        <Box sx={{ flexGrow: 1 }}>
@@ -29,7 +34,7 @@ const TotalApplicant = () => {
                         <Card sx={{ minWidth: 275, backgroundColor: "#00b0ff" }}>
                           <CardContent>
                             <Typography sx={{ fontSize: 35, fontWeight: 'bold', textAlign: 'center'}} color="white" >
-                            <p className="number-dashboard">35</p><span className="text-next-number">Applications</span>
+                            <p className="number-dashboard">{totalApplication}</p><span className="text-next-number">Applications</span>
                             </Typography>
                           </CardContent>
                         </Card>
@@ -39,7 +44,7 @@ const TotalApplicant = () => {
                         <Card sx={{ minWidth: 275, backgroundColor: "#ff3d00" }}>
                           <CardContent>
                             <Typography sx={{ fontSize: 35, fontWeight: 'bold', textAlign: 'center'}} color="white" >
-                              <p className="number-dashboard">50</p><span className="text-next-number">Emails</span>
+                              <p className="number-dashboard">{totalEmails}</p><span className="text-next-number">Emails</span>
                             </Typography>
                           </CardContent>
                         </Card>
@@ -49,7 +54,7 @@ const TotalApplicant = () => {
                         <Card sx={{ minWidth: 275, backgroundColor: "#4caf50" }}>
                           <CardContent>
                             <Typography sx={{ fontSize: 35, fontWeight: 'bold', textAlign: 'center'}} color="white" >
-                              <p className="number-dashboard">13</p><span className="text-next-number">Accepted</span>
+                              <p className="number-dashboard">{totalAccepted}</p><span className="text-next-number">Accepted</span>
                             </Typography>
                           </CardContent>
                         </Card>
