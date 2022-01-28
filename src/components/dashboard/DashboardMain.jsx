@@ -30,7 +30,7 @@ const DashboardMain = () => {
     useEffect(() => {
         const token = window.localStorage.getItem("token").toString(); 
         getDashboardData(token);
-    }, [])
+    })
 
 
     const getDashboardData = async (token) => {
@@ -42,8 +42,7 @@ const DashboardMain = () => {
             }
         })   
         try{
-            const result = await authAxios.post(`/api/admin/dashboard`);
-            
+            const result = await authAxios.post(`/api/admin/dashboard`);     
             const {acceptedCount, appCount, contactCount} = result.data;
 
             setDashboardCount({

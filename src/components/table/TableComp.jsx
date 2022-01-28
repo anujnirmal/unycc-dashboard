@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useNavigate } from "react-router-dom";
 import PropTypes from 'prop-types';
 import { alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -24,6 +25,9 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import CheckIcon from '@mui/icons-material/Check';
 import { visuallyHidden } from '@mui/utils';
+import ApplicationPopup from '../applicationPopup/ApplicationPopup';
+import axios from 'axios';
+
 
 function createData(name, calories, fat, carbs, protein) {
   return {
@@ -35,21 +39,23 @@ function createData(name, calories, fat, carbs, protein) {
   };
 }
 
-const rows = [
-  createData('Salmon Bhoi', 305, "salmong@gmail.com", 67, 4.3),
-  createData('Ram Mohan', 452, "rammohan@gmail.com", 51, 4.9),
-  createData('Nitin Ghagare', 262, "nitinghagare@gmail.com", 24, 6.0),
-  createData('Kabir Upreti', 159, "kabirUpreti@gmail.com", 24, 4.0),
-  createData('Samyak Chakrabarty', 356, "samyak@xbillionlabs.com", 49, 3.9),
-  createData('Gaurav Jain', 408, "gaurav@xbillionskillslab.com", 87, 6.5),
-  createData('Soumya Singh', 237, "soumyasingh@gmail.com", 37, 4.3),
-  createData('Nadeem', 375, "nadeem@xbillionskillslab.com", 94, 0.0),
-  createData('Janhavi Banka', 518, "janhavi@xbillionskillslab.com", 65, 7.0),
-  createData('Anchal Yadav', 392, "anchal@xbillionskillslba.com", 98, 0.0),
-  createData('Vishal Shendi', 318, "vishalshendi@gmail.com", 81, 2.0),
-  createData('Anuj Nirmal', 360, "anuj@worldceo.com", 9, 37.0),
-  createData('Kiyara', 437,"kiyaramybabu@gmail.com", 63, 4.0),
-];
+let rows = [];
+
+// const rows = [
+//   createData('Salmon Bhoi', 305, "salmong@gmail.com", 67),
+//   createData('Ram Mohan', 452, "rammohan@gmail.com", 51),
+//   createData('Nitin Ghagare', 262, "nitinghagare@gmail.com", 24),
+//   createData('Kabir Upreti', 159, "kabirUpreti@gmail.com", 24),
+//   createData('Samyak Chakrabarty', 356, "samyak@xbillionlabs.com", 49),
+//   createData('Gaurav Jain', 408, "gaurav@xbillionskillslab.com", 87),
+//   createData('Soumya Singh', 237, "soumyasingh@gmail.com", 37),
+//   createData('Nadeem', 375, "nadeem@xbillionskillslab.com", 94),
+//   createData('Janhavi Banka', 518, "janhavi@xbillionskillslab.com", 65),
+//   createData('Anchal Yadav', 392, "anchal@xbillionskillslba.com", 98),
+//   createData('Vishal Shendi', 318, "vishalshendi@gmail.com", 81),
+//   createData('Anuj Nirmal', 360, "anuj@worldceo.com", 9,),
+//   createData('Kiyara', 437,"kiyaramybabu@gmail.com", 63),
+// ];
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -121,6 +127,7 @@ function EnhancedTableHead(props) {
     onRequestSort(event, property);
   };
 
+
   return (
     <TableHead>
       <TableRow>
@@ -171,7 +178,7 @@ EnhancedTableHead.propTypes = {
 };
 
 const EnhancedTableToolbar = (props) => {
-  const { numSelected } = props;
+  const { numSelected, totalAppCount } = props;
 
   return (
     <Toolbar
@@ -184,17 +191,8 @@ const EnhancedTableToolbar = (props) => {
         }),
       }}
     >
-      {numSelected > 0 ? (
-        <Typography
-          sx={{ flex: '1 1 100%' }}
-          color="inherit"
-          variant="subtitle1"
-          component="div"
-        >
-          {numSelected} selected
-        </Typography>
-      ) : (
-        <Typography
+      
+      <Typography
           sx={{ flex: '1 1 100%' }}
           variant="h6"
           id="tableTitle"
@@ -202,7 +200,22 @@ const EnhancedTableToolbar = (props) => {
         >
           Applications
         </Typography>
-      )}
+     
+
+        <Typography
+          sx={{ 
+            flex: '0 1 10%',  
+            textAlign: 'right',
+            paddingRight: '6px'
+        }}
+          color="inherit"
+          variant="subtitle1"
+          component="div"
+        >
+           Total : {totalAppCount}
+        </Typography>
+      
+       
 
       {numSelected > 0 && (
         <Tooltip title="Accept">
@@ -224,9 +237,12 @@ export default function EnhancedTable() {
   const [orderBy, setOrderBy] = React.useState('calories');
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
-  const [dense, setDense] = React.useState(false);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [dense, setDense] = React.useState(true);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [totalAppCount, settotalAppCount] = React.useState();
+  const [applicationDataAll, setApplicationDataAll] = React.useState();
 
+ 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -239,7 +255,7 @@ export default function EnhancedTable() {
       setSelected(newSelecteds);
       return;
     }
-    setSelected([]);
+    setSelected([navigate]);
   };
 
   const handleClick = (event, name) => {
@@ -275,16 +291,62 @@ export default function EnhancedTable() {
     setDense(event.target.checked);
   };
 
+  let navigate = useNavigate();
+
   const isSelected = (name) => selected.indexOf(name) !== -1;
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
+
+
+  React.useEffect(() => {
+    const token = window.localStorage.getItem("token").toString(); 
+    getApplicationData(token);
+},[navigate])
+
+
+const getApplicationData = async (token) => {
+    
+    const authAxios = axios.create({
+        baseURL: 'http://localhost:4000',
+        headers: {
+            'x-access-token': token
+        }
+    })   
+    try{
+        const result = await authAxios.post(`/api/admin/application`)
+          .then((value) =>{
+              settotalAppCount(value.data.totalCount)
+              setApplicationDataAll(value.data.applications);
+              rows = [];
+              for (var i = 0; i < value.data.applications.length; i++){
+                rows.push(
+                  createData(
+                    value.data.applications[i].first_name,
+                    value.data.applications[i].age,
+                    value.data.applications[i].email, 
+                    value.data.applications[i].gender,
+                  ),
+                )
+              }
+          })
+        
+          
+
+    }
+    catch (err) {
+        console.log(err);
+    }     
+}
+
+
+
   return (
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
-        <EnhancedTableToolbar numSelected={selected.length} />
+        <EnhancedTableToolbar numSelected={selected.length} totalAppCount={totalAppCount} />
         <TableContainer>
           <Table
             sx={{ minWidth: 750 }}
@@ -311,7 +373,7 @@ export default function EnhancedTable() {
                   return (
                     <TableRow
                       hover
-                      onClick={(event) => handleClick(event, row.name)}
+                      // onClick={(event) => handleClick(event, row.name)}
                       role="checkbox"
                       aria-checked={isItemSelected}
                       tabIndex={-1}
@@ -342,7 +404,22 @@ export default function EnhancedTable() {
                       <TableCell align="right">{row.fat}</TableCell>
                       <TableCell align="right">{row.carbs}</TableCell>
                       <TableCell align="right">
-                        <Button 
+                        {/* <Button 
+                         
+                          onClick={() => {
+                            setAppPopup(true)
+                          }}
+                        >
+                          View
+                        </Button> */}
+
+                        <ApplicationPopup 
+                          curId={index} 
+                          info={row}
+                          appData={applicationDataAll}
+                        />
+
+                        {/* <Button 
                           variant="contained"
                           sx={{
                             margin: '0px 8px'
@@ -352,7 +429,7 @@ export default function EnhancedTable() {
                         </Button>
                         <Button variant="contained" color="error">
                           <CloseIcon /> 
-                        </Button>
+                        </Button> */}
                       </TableCell>
                     </TableRow>
                   );
