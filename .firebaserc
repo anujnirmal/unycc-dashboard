@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "unycc2022"
+  },
+  "targets": {
+    "unycc2022": {
+      "hosting": {
+        "admin": [
+          "unycc-admin"
+        ]
+      }
+    }
+  }
+}
