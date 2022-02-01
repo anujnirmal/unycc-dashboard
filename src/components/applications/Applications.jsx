@@ -3,9 +3,11 @@ import TableComp from "../table/TableComp";
 import "./applications.css";
 
 const Applications = () => {
+    const [page, setPage] = React.useState("application");
+
     return (
         <div>
-            <TableComp />
+            <TableComp page={page}/>
         </div>
     )
 }

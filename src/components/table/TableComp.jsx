@@ -26,6 +26,7 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import CheckIcon from '@mui/icons-material/Check';
 import { visuallyHidden } from '@mui/utils';
 import ApplicationPopup from '../applicationPopup/ApplicationPopup';
+import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 
 
@@ -147,7 +148,7 @@ function EnhancedTableHead(props) {
             key={headCell.id}
             align={headCell.numeric ? 'right' : 'left'}
             padding={headCell.disablePadding ? 'none' : 'normal'}
-            sortDirection={orderBy === headCell.id ? order : false}
+            //sortDirection={orderBy === headCell.id ? order : false}
           >
             <TableSortLabel
               active={orderBy === headCell.id}
@@ -232,16 +233,18 @@ EnhancedTableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
 };
 
-export default function EnhancedTable() {
+export default function EnhancedTable( props ) {
   const [order, setOrder] = React.useState('asc');
-  const [orderBy, setOrderBy] = React.useState('calories');
+  const [orderBy, setOrderBy] = React.useState('');
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(true);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [totalAppCount, settotalAppCount] = React.useState();
   const [applicationDataAll, setApplicationDataAll] = React.useState();
-
+  const [compReload, setCompReload] = React.useState();
+  const [appReload, setAppReload] = React.useState(props.appReload);
+  
  
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -304,11 +307,11 @@ export default function EnhancedTable() {
   React.useEffect(() => {
     const token = window.localStorage.getItem("token").toString(); 
     getApplicationData(token);
-},[navigate])
+},[navigate, compReload, appReload])
 
 
 const getApplicationData = async (token) => {
-    
+    console.log(props.page)
     const authAxios = axios.create({
         baseURL: 'http://localhost:4000',
         headers: {
@@ -316,11 +319,14 @@ const getApplicationData = async (token) => {
         }
     })   
     try{
-        const result = await authAxios.post(`/api/admin/application`)
+      const currPage = props.page;
+      if(currPage == "accepted"){
+          const result = await authAxios.post(`/api/admin/accepted`)
           .then((value) =>{
+            rows = [];
               settotalAppCount(value.data.totalCount)
               setApplicationDataAll(value.data.applications);
-              rows = [];
+              
               for (var i = 0; i < value.data.applications.length; i++){
                 rows.push(
                   createData(
@@ -331,15 +337,41 @@ const getApplicationData = async (token) => {
                   ),
                 )
               }
+
+              setCompReload(uuidv4());
           })
+      }
+
+      if(currPage == "application"){
+        const result = await authAxios.post(`/api/admin/application`)
+        .then((value) =>{
+            settotalAppCount(value.data.totalCount)
+            setApplicationDataAll(value.data.applications);
+            
+            rows = [];
+            for (var i = 0; i < value.data.applications.length; i++){
+              rows.push(
+                createData(
+                  value.data.applications[i].first_name,
+                  value.data.applications[i].age,
+                  value.data.applications[i].email, 
+                  value.data.applications[i].gender,
+                ),
+              )
+            }
+        })
+      }
         
-          
 
     }
     catch (err) {
         console.log(err);
     }     
 }
+
+  function removeAcceptedArray(curId) {
+    setCompReload(uuidv4());
+  }
 
 
 
@@ -377,7 +409,7 @@ const getApplicationData = async (token) => {
                       role="checkbox"
                       aria-checked={isItemSelected}
                       tabIndex={-1}
-                      key={row.name}
+                      key={index}
                       selected={isItemSelected}
                       sx={{
                         cursor: 'pointer'
@@ -417,6 +449,7 @@ const getApplicationData = async (token) => {
                           curId={index} 
                           info={row}
                           appData={applicationDataAll}
+                          reSort={removeAcceptedArray}
                         />
 
                         {/* <Button 

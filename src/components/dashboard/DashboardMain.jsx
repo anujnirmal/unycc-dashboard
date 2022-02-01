@@ -26,6 +26,7 @@ const DashboardMain = () => {
         "totalAccepted": "0"
     });
 
+    const [page, setPage] = useState("application");
     
     useEffect(() => {
         const token = window.localStorage.getItem("token").toString(); 
@@ -64,7 +65,7 @@ const DashboardMain = () => {
                         <TotalApplicant totalStats={dashboardCount} />
                     </Grid>
                     <Grid item xs={12}>
-                        <TableComp />
+                        <TableComp page={page}/>
                     </Grid>
                 </Grid>
             </Box>

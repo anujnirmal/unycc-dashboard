@@ -1,0 +1,12 @@
+.items-popup{
+    margin: 3px 0;
+}
+
+.field-title{
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.MuiCircularProgress-colorPrimary{
+    color: #fff !important;
+}

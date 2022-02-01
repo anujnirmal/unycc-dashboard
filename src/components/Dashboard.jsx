@@ -36,6 +36,8 @@ import {
 } from "react-router-dom";
 import "./dashboard.css"
 import { StoreMallDirectory } from '@mui/icons-material';
+import Accepted from './accepted/Accepted';
+import { v4 as uuidv4 } from 'uuid';
 
 
 const drawerWidth = 240;
@@ -46,12 +48,15 @@ function Dashboard(props) {
   const { window } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [reload, setReload] = React.useState(false)
+  const [appReload, setAppReload] = React.useState();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
-
+  function handleAcceptClick(){
+    setAppReload(uuidv4());
+  }
 
   const drawer = (
     <div>
@@ -77,7 +82,11 @@ function Dashboard(props) {
             </ListItem>
           </Link>
 
-          <Link className="dash-links" to="/accepted">
+          <Link 
+            className="dash-links" 
+            to="/accepted"
+            onClick={handleAcceptClick}  
+          >
             <ListItem button >
               <ListItemIcon>
                   <CheckIcon />
@@ -196,6 +205,7 @@ function Dashboard(props) {
         <Routes>
           <Route path="/applications" element={<Applications />} />
           <Route path="/emails" element={<Emails />} />
+          <Route path="/accepted" element={<Accepted  reload={appReload} />} />
           <Route path="/" element={<DashboardMain />} />
         </Routes>
       </Box>
