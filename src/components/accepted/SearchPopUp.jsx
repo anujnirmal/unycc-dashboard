@@ -10,8 +10,8 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Slide from '@mui/material/Slide';
 import Grid from '@mui/material/Grid';
-import "./applicationPopup.css";
-import serverLink from "../../serverLink.js";
+import { Link } from 'react-router-dom';
+import "./searchpopup.css";
 import { 
     Typography, 
     Divider, 
@@ -39,7 +39,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 const ApplicationPopup = (props) => {
 
-    const [open, setOpen] = React.useState(props.openUp);
+    const [open, setOpen] = React.useState(false);
     const [accepted, setAccepted] = React.useState(false);
     const [loader, setLoader] = React.useState({
         "rejectLoader": false,
@@ -95,7 +95,9 @@ const ApplicationPopup = (props) => {
           "course": curUserData.course,
           "super_power": curUserData.super_power,
           "why": curUserData.why,
-          "userId": curUserData._id
+          "userId": curUserData._id,
+          "aadharNumber": curUserData.aadharNumber,
+          "aadharImage": curUserData.aadhar
       })
       let appID = props.appData[arrayId]._id;
     };
@@ -106,100 +108,101 @@ const ApplicationPopup = (props) => {
 
 
     
-    const setStatusChange = async (e) => {
+    // const setStatusChange = async (e) => {
        
         
-        const butClick = e.target.id;
+    //     const butClick = e.target.id;
         
-        const token = window.localStorage.getItem("token").toString(); 
-        const authAxios = axios.create({
-            baseURL: serverLink,
-            headers: {
-                'x-access-token': token
-            }
-        })   
-        try{
+    //     const token = window.localStorage.getItem("token").toString(); 
+    //     const authAxios = axios.create({
+    //         baseURL: 'http://localhost:4000',
+    //         headers: {
+    //             'x-access-token': token
+    //         }
+    //     })   
+    //     try{
 
-            if(butClick == "accept"){   
-                setAccepted(false)              
-                setLoader({
-                    "rejectLoader": false,
-                    "acceptLoader": true
-                })  
+    //         if(butClick == "accept"){   
+    //             setAccepted(false)              
+    //             setLoader({
+    //                 "rejectLoader": false,
+    //                 "acceptLoader": true
+    //             })  
 
-                    setdisableBtn(true)
+    //                 setdisableBtn(true)
 
-                const result = await authAxios.post(`/api/admin/application/status`, {
-                    "acceptId": userData.userId,
-                    "statusChange": "A"
-                }).then((value) => {
-                    setLoader({
-                        "rejectLoader": false,
-                        "acceptLoader": false
-                    })  
+    //             const result = await authAxios.post(`/api/admin/application/status`, {
+    //                 "acceptId": userData.userId,
+    //                 "statusChange": "A"
+    //             }).then((value) => {
+    //                 setLoader({
+    //                     "rejectLoader": false,
+    //                     "acceptLoader": false
+    //                 })  handleClickOpen
 
-                    setdisableBtn(false)
-                    sortApplicants();
-                    setOpen(false)
-                    setAccepted(true)
-                    setOpenSnackBar(true)
+    //                 setdisableBtn(false)
+    //                 sortApplicants();
+    //                 setOpen(false)
+    //                 setAccepted(true)
+    //                 setOpenSnackBar(true)
                    
-                })     
-                // const {acceptedCount, appCount, contactCount} = result.data;
-            }
+    //             })     
+    //             // const {acceptedCount, appCount, contactCount} = result.data;
+    //         }
 
-            if(butClick == "reject"){    
-                setAccepted(false)
-                setLoader({
-                    "rejectLoader": true,
-                    "acceptLoader": false
-                })   
+    //         if(butClick == "reject"){    
+    //             setAccepted(false)
+    //             setLoader({
+    //                 "rejectLoader": true,
+    //                 "acceptLoader": false
+    //             })   
 
-                setdisableBtn(true)
+    //             setdisableBtn(true)
 
-                const result = await authAxios.post(`/api/admin/application/status`, {
-                    "acceptId": userData.userId,
-                    "statusChange": "R" 
-                }).then((value) => {
-                    setLoader({
-                        "rejectLoader": false,
-                        "acceptLoader": false
-                    }) 
-                    setdisableBtn(false);  
-                    setOpen(false);
-                    setOpenSnackBar(true);
-                    sortApplicants();
-                });     
-                // const {acceptedCount, appCount, contactCount} = result.data;
-            }
+    //             const result = await authAxios.post(`/api/admin/application/status`, {
+    //                 "acceptId": userData.userId,
+    //                 "statusChange": "R" 
+    //             }).then((value) => {
+    //                 setLoader({
+    //                     "rejectLoader": false,
+    //                     "acceptLoader": false
+    //                 }) 
+    //                 setdisableBtn(false);  
+    //                 setOpen(false);
+    //                 setOpenSnackBar(true);
+    //                 sortApplicants();
+    //             });     
+    //             // const {acceptedCount, appCount, contactCount} = result.data;
+    //         }
           
-        }
-        catch (err) {
-            console.log(err);
-        }     
+    //     }
+    //     catch (err) {
+    //         console.log(err);
+    //     }     
 
         
-    }
+    // }
 
     function sortApplicants(){
         props.reSort(props.curId)
         console.log(props.curId)
     }
  
+    function downloadImage(imgUrl) {
+        
+    }
 
   return( 
   <div>
-      <Snackbar open={openSnackBar} autoHideDuration={3000} onClose={handleSnackBarClose}>
+      {/* <Snackbar open={openSnackBar} autoHideDuration={3000} onClose={handleSnackBarClose}>
         <Alert onClose={handleSnackBarClose} severity={accepted ? "success" : "error"} sx={{ width: '100%' }}>
           {accepted ? "Accepted" : "Rejected"}
         </Alert>
       </Snackbar>
-      
+       */}
        <Button 
-         sx={{
-            padding: '0 8px'
-          }}
-        onClick={handleClickOpen}>
+            onClick={handleClickOpen}
+        >
         View
       </Button>
 
@@ -210,7 +213,7 @@ const ApplicationPopup = (props) => {
         onClose={handleClose}
         aria-describedby="alert-dialog-slide-description"
         fullWidth={true}
-        maxWidth='md'
+        maxWidth='xl'
       >
         <DialogTitle>User Applications</DialogTitle>
         <DialogContent >
@@ -315,6 +318,14 @@ const ApplicationPopup = (props) => {
                                  {userData.course}
                             </Grid>
 
+                            <Grid item xs={3}  className="items-popup">
+                                <h2 className='field-title'>Aadhar Number</h2> 
+                            </Grid>
+
+                            <Grid item xs={9}  className="items-popup">
+                                 {userData.aadharNumber}
+                            </Grid>
+
                         </Grid>                  
                     </Grid>
                         <Grid item xs={6}>                          
@@ -330,29 +341,24 @@ const ApplicationPopup = (props) => {
                                             }
                                         }
                                     >
-                                        Theme
+                                        Aadhar Card 
+                                            <Button onClick={() => {
+                                                downloadImage(userData.aadharImage)
+                                            }}>
+                                                Download
+                                            </Button>
+                                         
                                         <Divider light />
                                     </Typography>
                                 </Grid>    
-                                <Grid item xs={3}  className="items-popup">
-                                    <h2 className='field-title'>Super Power</h2>
-                                </Grid>    
-                                <Grid item xs={9}  className="items-popup">
-                                   : {userData.super_power}
-                                </Grid>
-                                    
-                                <Grid item xs={12}  className="items-popup">
-                                    <h2 className='field-title'>Why:</h2>
-                                </Grid>
 
                                 <Grid item xs={12}>
-                                    <Box sx={
-                                        {
-                                            maxHeight: "250px",
-                                            overflowY: 'scroll'
-                                        }
-                                    }>
-                                        {userData.why}
+                                    <Box >
+                                        <img 
+                                            src={userData.aadharImage} 
+                                            alt="aadhar card" 
+                                            className='aadharCardImg'   
+                                        />
                                     </Box>
                                 </Grid>
                             </Grid>
@@ -362,7 +368,7 @@ const ApplicationPopup = (props) => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-            <Button 
+            {/* <Button 
                 onClick={setStatusChange} 
                 sx={{width: "140px", height: "37px"}} 
                 variant="contained" 
@@ -371,16 +377,18 @@ const ApplicationPopup = (props) => {
                 disabled={disableBtn}
             >
               {loader.rejectLoader ? <CircularProgress color="primary" size="28px"/>: "Reject"}
-            </Button>
+            </Button>*/}
             <Button  
                 disabled={disableBtn} 
-                onClick={setStatusChange}  
+                onClick={() => {
+                    setOpen(false)
+                }}
                 sx={{width: "140px", height: "37px"}} 
                 variant="contained" 
                 id="accept"
             >
-                {loader.acceptLoader ? <CircularProgress color="primary" size="28px"/>: "Accept"}
-            </Button>
+                Close
+            </Button> 
         </DialogActions>
       </Dialog>
   </div>

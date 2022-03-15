@@ -37,7 +37,7 @@ const DashboardMain = () => {
     const getDashboardData = async (token) => {
         
         const authAxios = axios.create({
-            baseURL: 'http://localhost:4000',
+            baseURL: serverLink,
             headers: {
                 'x-access-token': token
             }

@@ -1,0 +1,23 @@
+.accept-reject-button-holder{
+    display: flex;
+}
+
+.accept-reject-button{
+    font-size: 10px !important;
+}
+
+.css-ecnxry-MuiButtonBase-root-MuiButton-root{
+    width: 0px !important;
+}
+
+.css-1essl89-MuiButtonBase-root-MuiButton-root{
+    width: 1px !important;
+}
+
+.capitalize{
+    text-transform: capitalize !important;
+}
+
+.css-1qgma8u-MuiButtonBase-root-MuiTableSortLabel-root.Mui-active .MuiTableSortLabel-icon{
+    display: none;
+}

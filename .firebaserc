@@ -3,9 +3,16 @@
     "default": "unycc2022"
   },
   "targets": {
-    "unycc2022": {
+    "admin": {
       "hosting": {
         "admin": [
+          "unycc-admin"
+        ]
+      }
+    },
+    "unycc2022": {
+      "hosting": {
+        "unyccadmin": [
           "unycc-admin"
         ]
       }

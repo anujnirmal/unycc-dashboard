@@ -6,6 +6,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
+import ManualEntry from './ManualEntry/ManualEntry';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -24,8 +25,10 @@ import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import DashboardMain from "./dashboard/DashboardMain";
 import CheckIcon from '@mui/icons-material/Check';
+import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
 import Applications from "./applications/Applications";
+import PanToolIcon from '@mui/icons-material/PanTool';
 import Emails from "./emails/Emails.jsx"
 import {
   BrowserRouter as Router,
@@ -38,6 +41,7 @@ import "./dashboard.css"
 import { StoreMallDirectory } from '@mui/icons-material';
 import Accepted from './accepted/Accepted';
 import { v4 as uuidv4 } from 'uuid';
+import DownloadList from './download/DownloadList';
 
 
 const drawerWidth = 240;
@@ -47,14 +51,23 @@ function Dashboard(props) {
   let navigate = useNavigate();
   const { window } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  const [reload, setReload] = React.useState(false)
+  const [reload, setReload] = React.useState()
   const [appReload, setAppReload] = React.useState();
+
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
   function handleAcceptClick(){
+    setReload(uuidv4());
+  }
+
+  function handleApplicationClick(){
+    setAppReload(uuidv4());
+  }
+
+  function handleManualEntryClick(){
     setAppReload(uuidv4());
   }
 
@@ -73,7 +86,11 @@ function Dashboard(props) {
             </ListItem>
           </Link>
 
-          <Link className="dash-links" to="/applications">
+          <Link 
+            className="dash-links" 
+            to="/applications"
+            onClick={handleApplicationClick}  
+          >
             <ListItem button >
               <ListItemIcon>
                   <PeopleIcon />
@@ -84,18 +101,31 @@ function Dashboard(props) {
 
           <Link 
             className="dash-links" 
+            to="/manualentry"
+            onClick={handleManualEntryClick}  
+          >
+            <ListItem button >
+              <ListItemIcon>
+                  <PanToolIcon />
+              </ListItemIcon>
+              <ListItemText primary="Manual Entry" />
+            </ListItem>
+          </Link>
+
+          <Link 
+            className="dash-links" 
             to="/accepted"
             onClick={handleAcceptClick}  
           >
             <ListItem button >
               <ListItemIcon>
-                  <CheckIcon />
+                  <SearchIcon />
               </ListItemIcon>
-              <ListItemText primary="Accepted" />
+              <ListItemText primary="Search" />
             </ListItem>
           </Link>
 
-          <Link className="dash-links" to="/rejected">
+          {/* <Link className="dash-links" to="/rejected">
             <ListItem button >
               <ListItemIcon>
                   <CloseIcon />
@@ -111,7 +141,7 @@ function Dashboard(props) {
               </ListItemIcon>
               <ListItemText primary="Emails" />
             </ListItem>
-          </Link>
+          </Link> */}
  
       </List>
       <Divider />
@@ -203,10 +233,12 @@ function Dashboard(props) {
        {/* Enter Body Content Here */}
       
         <Routes>
-          <Route path="/applications" element={<Applications />} />
+          <Route path="/applications" element={<Applications  applicationReload={reload} />} />
           <Route path="/emails" element={<Emails />} />
           <Route path="/accepted" element={<Accepted  reload={appReload} />} />
           <Route path="/" element={<DashboardMain />} />
+          <Route path="/downloads" element={<DownloadList />} />
+          <Route path="/manualentry" element={<ManualEntry />} />
         </Routes>
       </Box>
     </Box>

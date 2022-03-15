@@ -1,4 +1,6 @@
-const serverLink = "https://unycc-backend.herokuapp.com";
-//http://localhost:4000
+const serverLink = "https://api.youngchangemakersconclave.in";
+
+//https://unycc-backend.herokuapp.com
+
 
 module.exports = serverLink;

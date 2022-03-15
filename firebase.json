@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "target": "unyccadmin",
     "public": "build",
     "ignore": [
       "firebase.json",

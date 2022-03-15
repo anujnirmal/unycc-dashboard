@@ -26,17 +26,25 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import CheckIcon from '@mui/icons-material/Check';
 import { visuallyHidden } from '@mui/utils';
 import ApplicationPopup from '../applicationPopup/ApplicationPopup';
+import { 
+  Divider, 
+  CircularProgress,
+  Snackbar,
+  Alert as MuiAlert } from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
+import serverLink from '../../serverLink';
 
 
-function createData(name, calories, fat, carbs, protein) {
-  return {
+function createData( name, organization, course, age, city, gender, nationality) {
+  return { 
     name,
-    calories,
-    fat,
-    carbs,
-    protein,
+    organization,
+    course,
+    age,
+    city,
+    gender,
+    nationality
   };
 }
 
@@ -96,29 +104,47 @@ const headCells = [
     label: 'Name',
   },
   {
-    id: 'calories',
+    id: 'organization',
     numeric: true,
     disablePadding: false,
-    label: 'Ages',
+    label: 'Organization/Institute',
   },
   {
-    id: 'fat',
+    id: 'course',
     numeric: true,
     disablePadding: false,
-    label: 'Email',
+    label: 'Course/Designation',
   },
   {
-    id: 'carbs',
+    id: 'age',
+    numeric: true,
+    disablePadding: false,
+    label: 'age',
+  },
+  {
+    id: 'city',
+    numeric: true,
+    disablePadding: false,
+    label: 'city',
+  },
+  {
+    id: 'gender',
     numeric: true,
     disablePadding: false,
     label: 'Gender',
   },
   {
-    id: 'protein',
+    id: 'nationality',
+    numeric: true,
+    disablePadding: false,
+    label: 'Nationality',
+  },
+  {
+    id: 'accepted',
     numeric: true,
     disablePadding: false,
     label: 'Accept/Reject',
-  },
+  }
 ];
 
 function EnhancedTableHead(props) {
@@ -239,13 +265,36 @@ export default function EnhancedTable( props ) {
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(true);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [rowsPerPage, setRowsPerPage] = React.useState(25);
   const [totalAppCount, settotalAppCount] = React.useState();
   const [applicationDataAll, setApplicationDataAll] = React.useState();
-  const [compReload, setCompReload] = React.useState();
+  const [compReload, setCompReload] = React.useState('');
   const [appReload, setAppReload] = React.useState(props.appReload);
-  
- 
+  const [applicationReload, setApplicationReload] = React.useState(props.applicationReload);
+  const [loader, setLoader] = React.useState({
+    "rejectLoader": false,
+    "acceptLoader": false
+});
+
+const [open, setOpen] = React.useState(props.openUp);
+const [accepted, setAccepted] = React.useState(false);
+const[disableBtn, setdisableBtn] = React.useState(false);
+const [openSnackBar, setOpenSnackBar] = React.useState(false);
+const [userData, setUserData] = React.useState({
+    "first_name": '',
+    "last_name": '',
+    "email": '',
+    "phone": '',
+    "gender": '',
+    "age": '',
+    "city": '',
+    "state": '',
+    "institute": '',
+    "course": '',
+    "super_power": '',
+    "why": ''
+}) 
+
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -294,7 +343,15 @@ export default function EnhancedTable( props ) {
     setDense(event.target.checked);
   };
 
+  const handleSnackBarClick = () => {
+    setOpenSnackBar(true);
+};
+
+
   let navigate = useNavigate();
+
+  const url = window.location.pathname.split('/').pop();
+
 
   const isSelected = (name) => selected.indexOf(name) !== -1;
 
@@ -307,13 +364,13 @@ export default function EnhancedTable( props ) {
   React.useEffect(() => {
     const token = window.localStorage.getItem("token").toString(); 
     getApplicationData(token);
-},[navigate, compReload, appReload])
+},[navigate, compReload, setOpen])
 
 
 const getApplicationData = async (token) => {
-    console.log(props.page)
+
     const authAxios = axios.create({
-        baseURL: 'http://localhost:4000',
+        baseURL: serverLink,
         headers: {
             'x-access-token': token
         }
@@ -323,6 +380,7 @@ const getApplicationData = async (token) => {
       if(currPage == "accepted"){
           const result = await authAxios.post(`/api/admin/accepted`)
           .then((value) =>{
+            console.log("Form Result" + value)
             rows = [];
               settotalAppCount(value.data.totalCount)
               setApplicationDataAll(value.data.applications);
@@ -331,9 +389,12 @@ const getApplicationData = async (token) => {
                 rows.push(
                   createData(
                     value.data.applications[i].first_name,
+                    value.data.applications[i].institution,
+                    value.data.applications[i].course,
                     value.data.applications[i].age,
-                    value.data.applications[i].email, 
-                    value.data.applications[i].gender,
+                    value.data.applications[i].city,
+                    value.data.applications[i].gender, 
+                    value.data.applications[i].nationality,
                   ),
                 )
               }
@@ -352,13 +413,18 @@ const getApplicationData = async (token) => {
             for (var i = 0; i < value.data.applications.length; i++){
               rows.push(
                 createData(
-                  value.data.applications[i].first_name,
-                  value.data.applications[i].age,
-                  value.data.applications[i].email, 
-                  value.data.applications[i].gender,
+                    `${value.data.applications[i].first_name.toLowerCase().replace(/(^\w{1})|(\s{1}\w{1})/g, match => match.toUpperCase())} ${value.data.applications[i].last_name.toLowerCase().replace(/(^\w{1})|(\s{1}\w{1})/g, match => match.toUpperCase())}`,
+                    value.data.applications[i].institution.toLowerCase().replace(/(^\w{1})|(\s{1}\w{1})/g, match => match.toUpperCase()),
+                    value.data.applications[i].course.toLowerCase().replace(/(^\w{1})|(\s{1}\w{1})/g, match => match.toUpperCase()),
+                    value.data.applications[i].age,
+                    value.data.applications[i].city.toLowerCase().replace(/(^\w{1})|(\s{1}\w{1})/g, match => match.toUpperCase()),
+                    value.data.applications[i].gender.toLowerCase().replace(/(^\w{1})|(\s{1}\w{1})/g, match => match.toUpperCase()), 
+                    value.data.applications[i].nationality.toLowerCase().replace(/(^\w{1})|(\s{1}\w{1})/g, match => match.toUpperCase()),
                 ),
               )
             }
+
+            setCompReload(uuidv4());
         })
       }
         
@@ -372,6 +438,95 @@ const getApplicationData = async (token) => {
   function removeAcceptedArray(curId) {
     setCompReload(uuidv4());
   }
+
+
+  
+  const setStatusChange = async ( event, index ) => {
+
+    const butClick = event.target.id;
+    console.log(butClick)
+
+    const curUserSelectedData = applicationDataAll[index + (page * 25)]._id;  
+    
+    console.log(curUserSelectedData)
+
+    
+    
+    const token = window.localStorage.getItem("token").toString(); 
+    
+    const authAxios = axios.create({
+        baseURL: serverLink,
+        headers: {
+            'x-access-token': token
+        }
+    })   
+    try{
+
+        if(butClick == "accept"){   
+            setAccepted(false)              
+            setLoader({
+                "rejectLoader": false,
+                "acceptLoader": true
+            })  
+
+                setdisableBtn(true)
+
+            const result = await authAxios.post(`/api/admin/application/status`, {
+                "acceptId": curUserSelectedData,
+                "statusChange": "A"
+            }).then((value) => {
+                setLoader({
+                    "rejectLoader": false,
+                    "acceptLoader": false
+                })  
+
+                setdisableBtn(false)
+                sortApplicants();
+                setOpen(false)
+                setAccepted(true)
+                setOpenSnackBar(true)
+               
+            })     
+            // const {acceptedCount, appCount, contactCount} = result.data;
+        }
+
+        if(butClick == "reject"){    
+            setAccepted(false)
+            setLoader({
+                "rejectLoader": true,
+                "acceptLoader": false
+            })   
+
+            setdisableBtn(true)
+
+            const result = await authAxios.post(`/api/admin/application/status`, {
+                "acceptId": curUserSelectedData,
+                "statusChange": "R" 
+            }).then((value) => {
+                setLoader({
+                    "rejectLoader": false,
+                    "acceptLoader": false
+                }) 
+                setdisableBtn(false);  
+                setOpen(false);
+                setOpenSnackBar(true);
+                sortApplicants();
+            });     
+            // const {acceptedCount, appCount, contactCount} = result.data;
+        }
+      
+    }
+    catch (err) {
+        console.log(err);
+    }     
+
+    
+}
+
+function sortApplicants(){
+    props.reSort(props.curId)
+    console.log(props.curId)
+}
 
 
 
@@ -390,7 +545,7 @@ const getApplicationData = async (token) => {
               order={order}
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
-              onRequestSort={handleRequestSort}
+              // onRequestSort={handleRequestSort}
               rowCount={rows.length}
             />
             <TableBody>
@@ -415,15 +570,11 @@ const getApplicationData = async (token) => {
                         cursor: 'pointer'
                       }}
                     >
-                      <TableCell padding="checkbox">
-                        {/* <Checkbox
-                          color="primary"
-                          checked={isItemSelected}
-                          inputProps={{
-                            'aria-labelledby': labelId,
-                          }}
-                        /> */}
-                      </TableCell>
+                       <TableCell 
+                         type="checkbox"
+                      >
+                       
+                      </TableCell> 
                       <TableCell
                         component="th"
                         id={labelId}
@@ -432,9 +583,12 @@ const getApplicationData = async (token) => {
                       >
                         {row.name}
                       </TableCell>
-                      <TableCell align="right">{row.calories}</TableCell>
-                      <TableCell align="right">{row.fat}</TableCell>
-                      <TableCell align="right">{row.carbs}</TableCell>
+                      <TableCell align="right">{row.organization}</TableCell>
+                      <TableCell align="right">{row.course}</TableCell>
+                      <TableCell align="right">{row.age}</TableCell>
+                      <TableCell align="right">{row.city}</TableCell>
+                      <TableCell align="right">{row.gender}</TableCell>
+                      <TableCell align="right">{row.nationality}</TableCell>
                       <TableCell align="right">
                         {/* <Button 
                          
@@ -444,13 +598,41 @@ const getApplicationData = async (token) => {
                         >
                           View
                         </Button> */}
+                        <div className="accept-reject-button-holder">
+                         
+                          <Button  
+                            disabled={disableBtn} 
+                            onClick={(event) => (setStatusChange(event, index))}  
+                            sx={{width: "70px", height: "37px"}} 
+                            variant="text" 
+                            id="accept"
+                            className="accept-reject-button"
+                          >
+                            {loader.acceptLoader ? <CircularProgress color="primary" size="28px"/>: "Accept"}
+                          </Button>
 
-                        <ApplicationPopup 
+                          <Button 
+                            onClick={(event) => (setStatusChange(event, index))} 
+                            sx={{width: "70px", height: "37px"}} 
+                            variant="text" 
+                            color="secondary" 
+                            id="reject"
+                            disabled={disableBtn}
+                            className="accept-reject-button"
+                          >
+                            {loader.rejectLoader ? <CircularProgress color="primary" size="28px"/>: "Reject"}
+                          </Button>
+
+
+                        </div>
+
+                      {/* Popup Here */}
+                        {/* <ApplicationPopup 
                           curId={index} 
                           info={row}
                           appData={applicationDataAll}
                           reSort={removeAcceptedArray}
-                        />
+                        /> */}
 
                         {/* <Button 
                           variant="contained"
@@ -480,7 +662,7 @@ const getApplicationData = async (token) => {
           </Table>
         </TableContainer>
         <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
+          rowsPerPageOptions={[25]}
           component="div"
           count={rows.length}
           rowsPerPage={rowsPerPage}
