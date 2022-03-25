@@ -23,7 +23,9 @@ const DashboardMain = () => {
     const [dashboardCount, setDashboardCount] = useState({
         "applicationCount": "0",
         "totalEmails": "0",
-        "totalAccepted": "0"
+        "totalAccepted": "0",
+        "totalManualEntry": "0",
+        "totalRsvp": "0"
     });
 
     const [page, setPage] = useState("application");
@@ -44,12 +46,20 @@ const DashboardMain = () => {
         })   
         try{
             const result = await authAxios.post(`/api/admin/dashboard`);     
-            const {acceptedCount, appCount, contactCount} = result.data;
+            const {
+                acceptedCount, 
+                appCount, 
+                contactCount, 
+                manualentry,
+                rsvp
+            } = result.data;
 
             setDashboardCount({
                 "applicationCount": appCount,
                 "totalEmails": contactCount,
-                "totalAccepted": acceptedCount
+                "totalAccepted": acceptedCount,
+                "totalManualEntry": manualentry,
+                "totalRsvp": rsvp
             })
         }
         catch (err) {

@@ -25,6 +25,9 @@ const TotalApplicant = (props) => {
   const totalApplication = props.totalStats.applicationCount;
   const totalEmails = props.totalStats.totalEmails;
   const totalAccepted = props.totalStats.totalAccepted;
+  const totalManualEntry = props.totalStats.totalManualEntry;
+  const totalRsvp = props.totalStats.totalRsvp;
+  const totalAttendees = totalAccepted + totalManualEntry + totalRsvp
 
   return (
     <div>
@@ -34,7 +37,7 @@ const TotalApplicant = (props) => {
                         <Card sx={{ minWidth: 275, backgroundColor: "#00b0ff" }}>
                           <CardContent>
                             <Typography sx={{ fontSize: 35, fontWeight: 'bold', textAlign: 'center'}} color="white" >
-                            <p className="number-dashboard">{totalApplication}</p><span className="text-next-number">Applications</span>
+                            <p className="number-dashboard">{totalApplication}</p><span className="text-next-number">Registrations</span>
                             </Typography>
                           </CardContent>
                         </Card>
@@ -44,7 +47,7 @@ const TotalApplicant = (props) => {
                         <Card sx={{ minWidth: 275, backgroundColor: "#ff3d00" }}>
                           <CardContent>
                             <Typography sx={{ fontSize: 35, fontWeight: 'bold', textAlign: 'center'}} color="white" >
-                              <p className="number-dashboard">{totalEmails}</p><span className="text-next-number">Emails</span>
+                              <p className="number-dashboard">{totalAttendees}</p><span className="text-next-number">Total Attendees</span>
                             </Typography>
                           </CardContent>
                         </Card>
